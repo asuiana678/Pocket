@@ -108,7 +108,7 @@ body.booting #toDs,body.booting #toGb{opacity:.5}
 </style></head><body class="booting">
 <div id="auth"><div class="card"><div class="ttl">PIXEL SYSTEM™</div>
 <div class="sub">Anmeldung · Konten legt nur der Admin an</div>
-<input id="au" type="text" placeholder="Benutzername" autocomplete="username" maxlength="16" autocapitalize="off" autocorrect="off" spellcheck="false">
+<input id="au" type="text" placeholder="Benutzername (z. B. legend)" autocomplete="username" maxlength="60" autocapitalize="off" autocorrect="off" spellcheck="false">
 <input id="ap" type="password" placeholder="Passwort" autocomplete="current-password">
 <div id="am"></div>
 <button type="button" id="ago" class="go">Anmelden</button></div></div>
@@ -1097,7 +1097,7 @@ function enter(key,name,adm){const u=SB?null:ACC()[key];USER=key;UN=name;ADM=adm
 let busy=0;
 function submit(){
  if(busy)return;busy=1;AGO.disabled=true;
- const name=AUe.value.trim(),pw=APe.value,key=name.toLowerCase();
+ const name=AUe.value.trim().split('@')[0],pw=APe.value,key=name.toLowerCase();
  const fin=()=>{busy=0;AGO.disabled=false};
  if(SB){if(!/^[A-Za-z0-9_.-]{3,16}$/.test(name)||!pw){say('Benutzername oder Passwort falsch');return fin()}
   sbLogin(name,pw).then(m=>{if(m)say(m)}).catch(e=>say('Fehler: '+(e&&e.message||e))).finally(fin);return}
