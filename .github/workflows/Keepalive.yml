@@ -1,0 +1,12 @@
+# Hält das kostenlose Supabase-Projekt wach (Gratis-Projekte werden nach 1 Woche ohne Aktivität pausiert).
+# Einrichten: GitHub-Repo -> Settings -> Secrets and variables -> Actions -> Secrets:
+#   SUPABASE_URL  (z. B. https://abcdxyz.supabase.co)   SUPABASE_KEY  (der publishable/anon Schlüssel)
+name: Supabase keep-alive
+on:
+  schedule: [{ cron: '17 6 * * 1,4' }]
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsS -o /dev/null -H "apikey: ${{ secrets.SUPABASE_KEY }}" "${{ secrets.SUPABASE_URL }}/rest/v1/"
