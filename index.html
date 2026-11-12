@@ -108,6 +108,7 @@ body.booting #toDs,body.booting #toGb{opacity:.5}
 </style></head><body class="booting">
 <div id="auth"><div class="card"><div class="ttl">PIXEL SYSTEM™</div>
 <div class="sub">Anmeldung · Konten legt nur der Admin an</div>
+<div class="sub" id="mode" style="font-weight:700"></div>
 <input id="au" type="text" placeholder="Benutzername (z. B. legend)" autocomplete="username" maxlength="60" autocapitalize="off" autocorrect="off" spellcheck="false">
 <input id="ap" type="password" placeholder="Passwort" autocomplete="current-password">
 <div id="am"></div>
@@ -1027,7 +1028,7 @@ function hl(){bd.classList.toggle('inmenu',cur=='menu');gis.forEach((b,i)=>b.cla
 /* === KONFIG: nur diese beiden Zeilen anpassen ===
    SB_URL: deine Supabase Project URL, z. B. 'https://abcdefghij.supabase.co'  (leer = lokaler Modus)
    SB_KEY: der öffentliche publishable-Schlüssel (darf im Quelltext stehen, NIE den secret-Schlüssel) */
-const SB_URL='https://qjjegvtxmvzpqdfokfwi.supabase.co/rest/v1/';
+const SB_URL='https://qjjegvtxmvzpqdfokfwi.supabase.co';
 const SB_KEY='sb_publishable_b0NJBMiRo23_w6e6jVJ3nQ_gufdq_w5';
 const EMAIL_DOMAIN='pixel.local';
 const SB=!!(SB_URL&&SB_KEY);
@@ -1050,7 +1051,7 @@ async function sbEnter(){
 async function sbLogin(name,pw){
  const r=await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',headers:sbH(),body:JSON.stringify({email:name.toLowerCase()+'@'+EMAIL_DOMAIN,password:pw})});
  if(r.status==0)return'Keine Verbindung zum Server.';
- if(!r.ok||!r.j||!r.j.access_token)return'Benutzername oder Passwort falsch';
+ if(!r.ok||!r.j||!r.j.access_token){const m=String((r.j&&(r.j.msg||r.j.message||r.j.error_description||r.j.error))||'');if(r.status==400&&(!m||/invalid login credentials|invalid_grant|invalid_credentials/i.test(m)||(r.j&&r.j.error_code=='invalid_credentials')))return'Benutzername oder Passwort falsch (Server-Modus: Konto muss '+name.toLowerCase()+'@'+EMAIL_DOMAIN+' heißen)';return'Server-Fehler: '+(m||'HTTP '+r.status)}
  sbSave(r.j);return sbEnter()}
 const lsJ=k=>{try{return JSON.parse(LS.getItem(k)||'{}')||{}}catch(e){return{}}};
 async function sbPull(un){
@@ -1107,7 +1108,7 @@ function submit(){
   else{const st=stOf(u);if(st=='ban')say('Dieses Konto ist deaktiviert.');else if(st=='exp')say('Dieses Konto ist abgelaufen ('+fmtD(u.exp)+').');else if(online(u))say('Dieses Konto ist schon angemeldet (nur eine Sitzung gleichzeitig).');else enter(key,u.n)}
  }catch(e){say('Fehler: '+(e&&e.message||e))}fin()},350)}
 function logout(){if(SB&&USER){const u0=USER;(async()=>{try{await sbPush();await rpc('logout_session',{p_sess:SID})}catch(e){}await sbOut()})()}else if(USER)setSess(USER,false);USER=HSK=null;UN='';ADM=false;HS=zeroHS();try{LS.removeItem('ph_user')}catch(e){}ps=0;paused=0;cur='menu';AUe.value=APe.value='';document.body.classList.remove('adm');document.body.classList.add('auth')}
-AGO.onclick=submit;
+AGO.onclick=submit;{const md=$('mode');md.textContent=SB?'● Server-Modus (Supabase)':'● Lokaler Modus – nur Konten aus diesem Browser';md.style.color=SB?'#06d6a0':'#ffd166'}
 [AUe,APe].forEach(e=>e.addEventListener('keydown',ev=>{if(ev.key=='Enter')submit()}));
 if(!SB)ensureAdmin();
 if(LS.mem)say('Hinweis: Browser-Speicher gesperrt – Daten nur bis zum Schließen.',1);
